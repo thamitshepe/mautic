@@ -21,8 +21,12 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-configure gd --with-jpeg --with-freetype \
     && docker-php-ext-install intl pdo_mysql zip mbstring opcache gd
 
-# Optionally install IMAP via PECL (easier than building from libc-client)
-# RUN pecl install imap && docker-php-ext-enable imap
+# Install IMAP via PECL
+RUN apt-get update && apt-get install -y \
+    libkrb5-dev \
+    && pecl install imap \
+    && docker-php-ext-enable imap
+
 
 # Set git safe directory to avoid dubious ownership
 RUN git config --global --add safe.directory /var/www/html
