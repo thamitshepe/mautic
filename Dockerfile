@@ -18,15 +18,10 @@ RUN apt-get update && apt-get install -y \
     npm \
     nodejs \
     libkrb5-dev \
+    libc-client-dev \
     && docker-php-ext-configure gd --with-jpeg --with-freetype \
-    && docker-php-ext-install intl pdo_mysql zip mbstring opcache gd
-
-# Install IMAP via PECL
-RUN apt-get update && apt-get install -y \
-    libkrb5-dev \
-    && pecl install imap \
-    && docker-php-ext-enable imap
-
+    && docker-php-ext-configure imap --with-kerberos --with-imap-ssl --with-imap=/usr/include/c-client \
+    && docker-php-ext-install intl pdo_mysql zip mbstring opcache gd imap
 
 # Set git safe directory to avoid dubious ownership
 RUN git config --global --add safe.directory /var/www/html
@@ -47,4 +42,3 @@ RUN npm run build
 EXPOSE 9000
 
 CMD ["php-fpm"]
-
