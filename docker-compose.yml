@@ -1,0 +1,32 @@
+version: "3.8"
+
+services:
+  mautic:
+    build: .
+    container_name: mautic_app
+    restart: always
+    ports:
+      - "9000:9000" # PHP-FPM port, will be proxied by Nginx
+    volumes:
+      - mautic_data:/var/www/html
+    environment:
+      - MAUTIC_DB_HOST=db
+      - MAUTIC_DB_NAME=mautic
+      - MAUTIC_DB_USER=mautic
+      - MAUTIC_DB_PASSWORD=secret
+
+  db:
+    image: mariadb:11
+    container_name: mautic_db
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootsecret
+      - MYSQL_DATABASE=mautic
+      - MYSQL_USER=mautic
+      - MYSQL_PASSWORD=secret
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  mautic_data:
+  db_data:
