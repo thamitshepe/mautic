@@ -2,7 +2,7 @@ FROM php:8.2-fpm
 
 WORKDIR /var/www/html
 
-# Install system dependencies and PHP extensions
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
@@ -18,10 +18,11 @@ RUN apt-get update && apt-get install -y \
     npm \
     nodejs \
     libkrb5-dev \
-    libc-client2007e-dev \
     && docker-php-ext-configure gd --with-jpeg --with-freetype \
-    && docker-php-ext-configure imap --with-kerberos --with-imap-ssl --with-imap=/usr/include/c-client \
-    && docker-php-ext-install intl pdo_mysql zip mbstring opcache gd imap
+    && docker-php-ext-install intl pdo_mysql zip mbstring opcache gd
+
+# Optionally install IMAP via PECL (easier than building from libc-client)
+# RUN pecl install imap && docker-php-ext-enable imap
 
 # Set git safe directory to avoid dubious ownership
 RUN git config --global --add safe.directory /var/www/html
@@ -29,7 +30,7 @@ RUN git config --global --add safe.directory /var/www/html
 # Install Composer
 COPY --from=composer:2.9 /usr/bin/composer /usr/bin/composer
 
-# Copy Mautic source
+# Copy source code
 COPY . .
 
 # Install PHP dependencies
@@ -42,3 +43,4 @@ RUN npm run build
 EXPOSE 9000
 
 CMD ["php-fpm"]
+
