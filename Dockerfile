@@ -2,7 +2,7 @@ FROM php:8.2-fpm
 
 WORKDIR /var/www/html
 
-# Install dependencies including IMAP
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
@@ -18,13 +18,20 @@ RUN apt-get update && apt-get install -y \
     npm \
     nodejs \
     libkrb5-dev \
-    libc-client2007e-dev \
+    wget \
+    build-essential \
+    libcurl4-openssl-dev \
+    libssl-dev \
+    libkrb5-dev \
     && docker-php-ext-configure gd --with-jpeg --with-freetype \
+    && curl -L -o c-client.tar.gz https://github.com/ThomasWaldmann/c-client/archive/refs/tags/2007f.tar.gz \
+    && tar -xzf c-client.tar.gz \
+    && cd c-client-2007f \
+    && make lnp \
     && docker-php-ext-configure imap --with-kerberos --with-imap-ssl \
     && docker-php-ext-install intl pdo_mysql zip mbstring opcache gd imap
 
-
-# Set git safe directory to avoid dubious ownership
+# Set git safe directory
 RUN git config --global --add safe.directory /var/www/html
 
 # Install Composer
